@@ -1,0 +1,95 @@
+CREATE TABLE usuarios (
+	idusuario SERIAL PRIMARY KEY,
+	nombre VARCHAR(250) NOT NULL,
+	apellido VARCHAR(250) NOT NULL,
+	email VARCHAR(200) NOT NULL,
+	usuario VARCHAR(150) NOT NULL,
+	contrasena_hash VARCHAR(200) NOT NULL,
+	contrasena_md5 VARCHAR(200) NOT NULL,
+	contrasena_sha1 VARCHAR(200) NOT NULL,
+	status INTEGER NOT NULL
+);
+
+CREATE OR REPLACE FUNCTION verificarcontrasenahash(
+    p_nombreusuario text,
+    p_contrasena text)
+RETURNS integer
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    contrasena_md5_db TEXT;
+BEGIN
+    -- Obtener el hash almacenado para el usuario
+    SELECT contrasena_hash INTO contrasena_md5_db
+    FROM usuarios
+    WHERE nombreusuario = p_nombreusuario;
+    
+    -- Si no encuentra el usuario
+    IF NOT FOUND THEN
+        RETURN 0;
+    END IF;
+    
+    -- Comparar el hash proporcionado con el almacenado
+    IF contrasena_md5_db = p_contrasena THEN
+        RETURN 1; -- Contraseña válida
+    ELSE
+        RETURN 0; -- Contraseña inválida
+    END IF;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION verificarcontrasenamd5(
+    p_nombreusuario text,
+    p_contrasena text)
+RETURNS integer
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    contrasena_md5_db TEXT;
+BEGIN
+    -- Obtener el hash almacenado para el usuario
+    SELECT contrasena_md5 INTO contrasena_md5_db
+    FROM usuarios
+    WHERE nombreusuario = p_nombreusuario;
+    
+    -- Si no encuentra el usuario
+    IF NOT FOUND THEN
+        RETURN 0;
+    END IF;
+    
+    -- Comparar el hash proporcionado con el almacenado
+    IF contrasena_md5_db = p_contrasena THEN
+        RETURN 1; -- Contraseña válida
+    ELSE
+        RETURN 0; -- Contraseña inválida
+    END IF;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION verificarcontrasenasha1(
+    p_nombreusuario text,
+    p_contrasena text)
+RETURNS integer
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    contrasena_sha1_db TEXT;
+BEGIN
+    -- Obtener el hash almacenado para el usuario
+    SELECT contrasena_sha1 INTO contrasena_sha1_db
+    FROM usuarios
+    WHERE nombreusuario = p_nombreusuario;
+    
+    -- Si no encuentra el usuario
+    IF NOT FOUND THEN
+        RETURN 0;
+    END IF;
+    
+    -- Comparar el hash proporcionado con el almacenado
+    IF contrasena_sha1_db = p_contrasena THEN
+        RETURN 1; -- Contraseña válida
+    ELSE
+        RETURN 0; -- Contraseña inválida
+    END IF;
+END;
+$$;
