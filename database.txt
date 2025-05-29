@@ -1,3 +1,4 @@
+DATABASE: POSTGRESQL
 CREATE TABLE usuarios (
 	idusuario SERIAL PRIMARY KEY,
 	nombre VARCHAR(250) NOT NULL,
@@ -94,6 +95,7 @@ BEGIN
     END IF;
 END;
 $$;
+<<<<<<< HEAD
 
 CREATE OR REPLACE FUNCTION verificarContrasenaRSA(
     p_nombreusuario text,
@@ -123,3 +125,5 @@ BEGIN
     END IF;
 END;
 $$;
+=======
+>>>>>>> 9120c1f887ab525e345f9c48fd2c81d23768cb2c
