@@ -1,0 +1,15 @@
+{
+    "nombre": "diego",
+    "apellido": "diego",
+    "email": "diego@gmail.com",
+    "usuario": "diego",
+    "contrasena_hash": "diego",
+    "contrasena_md5": "diego",
+    "contrasena_sha1": "diego",
+    "contrasena_rsa": "diego"
+}
+
+{
+    "usuario": "diego",
+    "contrasena": "diego"
+}

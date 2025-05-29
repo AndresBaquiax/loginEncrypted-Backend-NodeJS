@@ -22,3 +22,10 @@ DB_PASSWORD = iXM3YRf9Z6LkfQ3j
 DB_SERVER = aws-0-us-east-1.pooler.supabase.com
 DB_DATABASE = postgres
 DB_PORT = 6543
+
+
+DB_USER = postgres
+DB_PASSWORD = root
+DB_SERVER = localhost
+DB_DATABASE = hashing
+DB_PORT = 5432

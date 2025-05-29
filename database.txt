@@ -7,7 +7,8 @@ CREATE TABLE usuarios (
 	contrasena_hash VARCHAR(200) NOT NULL,
 	contrasena_md5 VARCHAR(200) NOT NULL,
 	contrasena_sha1 VARCHAR(200) NOT NULL,
-	status INTEGER NOT NULL
+	status INTEGER NOT NULL,
+    contrasena_rsa VARCHAR(2048) NOT NULL
 );
 
 CREATE OR REPLACE FUNCTION verificarcontrasenahash(
@@ -87,6 +88,35 @@ BEGIN
     
     -- Comparar el hash proporcionado con el almacenado
     IF contrasena_sha1_db = p_contrasena THEN
+        RETURN 1; -- Contraseña válida
+    ELSE
+        RETURN 0; -- Contraseña inválida
+    END IF;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION verificarContrasenaRSA(
+    p_nombreusuario text,
+    p_contrasena_rsa text
+)
+RETURNS integer
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    contrasena_rsa_db TEXT;
+BEGIN
+    -- Obtener la contraseña cifrada almacenada para el usuario
+    SELECT contrasena_rsa INTO contrasena_rsa_db
+    FROM usuarios
+    WHERE usaurio = p_nombreusuario;
+    
+    -- Si no encuentra el usuario
+    IF NOT FOUND THEN
+        RETURN 0;
+    END IF;
+    
+    -- Comparar el valor cifrado recibido con el almacenado
+    IF contrasena_rsa_db = p_contrasena_rsa THEN
         RETURN 1; -- Contraseña válida
     ELSE
         RETURN 0; -- Contraseña inválida

@@ -16,6 +16,32 @@ const hashearTexto = (texto) => {
     return bcrypt.hashSync(texto, saltRounds);
 };
 
+// Clave RSA pública quemada en el código (temporal)
+const RSA_PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp+C1ISbU2BcukE98Ja9U
+8hCNeLezpfiSAL/EAp7Uj8fGknT2Y2kVire/domHEvnrCxXda9jzqqpIdMGYgLjs
+ee6Qw3OZ+SpSS4D/W7ruF42pL3O8Sk35NtKbV03wVrrIplTXezC7WVf2V91DsrRQ
+xssw3A4eT0/O0fmvxyEku+hRzMqxFXQw1qvbplKo2T+Drnbyfr2sOnGlJplnliN3
+dcZycjjEPqGrI0qbx3wquCXTQufVYv6IMCO7iGb7hu4k23d5KnqUoAufJDWrsOLw
+V+zkP5a972QvKQShJi7T6q0ULV3mZYON5JNMDwEY0CAuyFAytT44J3+ey4ZWs478
+FwIDAQAB
+-----END PUBLIC KEY-----`;
+
+const encriptarRSA = (texto) => {
+    try {
+        const buffer = Buffer.from(texto, 'utf8');
+        const encrypted = crypto.publicEncrypt({
+            key: RSA_PUBLIC_KEY,
+            padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+            oaepHash: "sha256",
+        }, buffer);
+        return encrypted.toString('base64');
+    } catch (error) {
+        throw new Error('Error en encriptación RSA: ' + error.message);
+    }
+};
+
+
 // --------------------- GET ---------------------
 export const getUsuarios = async (req, res) => {
     try {
@@ -53,17 +79,18 @@ export const getUsuariosById = async (req, res) => {
 // --------------------- POST ---------------------
 export const postUsuarios = async (req, res) => {
     try {
-        const { nombre, apellido, email, usuario, contrasena_hash, contrasena_md5, contrasena_sha1 } = req.body;
+        const { nombre, apellido, email, usuario, contrasena_hash, contrasena_md5, contrasena_sha1, contrasena_rsa } = req.body;
         let { status } = req.body;
 
         // Validamos los datos
-        if ( !nombre || !apellido || !email|| !usuario || !contrasena_hash || !contrasena_md5 || !contrasena_sha1 ) {
+        if ( !nombre || !apellido || !email|| !usuario || !contrasena_hash || !contrasena_md5 || !contrasena_sha1 || !contrasena_rsa ) {
             return res.status(400).json({ msg: "Bad Request. Please fill all fields." });
         }
         
         const contrasenasha1 = encriptarSHA1(contrasena_sha1);
         const contrasenamd5 = encriptarMD5(contrasena_md5);
         const contrasenahash = hashearTexto(contrasena_hash);
+        const contrasenarsa = encriptarRSA(contrasena_rsa);
 
         status = 1;
 
@@ -72,7 +99,7 @@ export const postUsuarios = async (req, res) => {
 
         // Ejecutamos la consulta
         await usuarios.query(querysUsuarios.postUsuarios, [
-            nombre, apellido, email, usuario, contrasenahash, contrasenamd5, contrasenasha1, status
+            nombre, apellido, email, usuario, contrasenahash, contrasenamd5, contrasenasha1, status, contrasenarsa
         ]);
 
         // Liberamos la conexion
@@ -88,17 +115,19 @@ export const postUsuarios = async (req, res) => {
 export const putUsuarios = async (req, res) => {
     try {
         const { idusuario } = req.params;
-        const { nombre, apellido, email, usuario, contrasena_hash, contrasena_md5, contrasena_sha1 } = req.body;
+        const { nombre, apellido, email, usuario, contrasena_hash, contrasena_md5, contrasena_sha1, contrasena_rsa } = req.body;
         let { status } = req.body;
 
         // Validamos los datos
-        if ( !nombre || !apellido || !email|| !usuario || !contrasena_hash || !contrasena_md5 || !contrasena_sha1 ) {
+        if ( !nombre || !apellido || !email|| !usuario || !contrasena_hash || !contrasena_md5 || !contrasena_sha1 || !contrasena_rsa ) {
             return res.status(400).json({ msg: "Bad Request. Please fill all fields." });
         }
 
         const contrasenasha1 = encriptarSHA1(contrasena_sha1);
         const contrasenamd5 = encriptarMD5(contrasena_md5);
         const contrasenahash = hashearTexto(contrasena_hash);
+        const contrasenarsa = encriptarRSA(contrasena_rsa);
+
         status = 1;
 
         // Obtenemos la conexion
@@ -106,7 +135,7 @@ export const putUsuarios = async (req, res) => {
 
         // Ejecutamos la consulta
         await usuarios.query(querysUsuarios.putUsuarios, [
-            nombre, apellido, email, usuario, contrasenahash, contrasenamd5, contrasenasha1, status, idusuario
+            nombre, apellido, email, usuario, contrasenahash, contrasenamd5, contrasenasha1, status, contrasenarsa, idusuario
         ]);
 
         // Liberamos la conexion
